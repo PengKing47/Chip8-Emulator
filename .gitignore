@@ -1,0 +1,8 @@
+*.o
+CMakeCache.txt
+CMakeFiles/*
+CMakeFiles
+.vscode/*
+roms/*
+chip8_emulator
+cmake_install.cmake
