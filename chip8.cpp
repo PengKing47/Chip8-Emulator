@@ -3,9 +3,8 @@
 
 Chip8::Chip8(){
     this->programCounter = START_ADDRESS;
+    this->stackPointer = 0xF;
     this->loadFonts();
-
-    
 }
 
 void Chip8::loadRom(const std::string& filename){
@@ -28,7 +27,6 @@ void Chip8::loadRom(const std::string& filename){
     }
 
     infile.close();
-
     std::cout << "ROM loaded scuessfully" << '\n';
 }
 
@@ -71,10 +69,7 @@ void Chip8::start(){
     }
 
     screenThread.join();
-
 }
-
-
 
 void Chip8::updateTimers(){
     if(this->delayTimer > 0){
@@ -85,8 +80,6 @@ void Chip8::updateTimers(){
     }
 }
 
-
-
 std::ostream& operator<<(std::ostream& stream, const Chip8& ch8){
     for (int i = 0; i < 4096; i++) {
         stream << "0x" << std::hex << (int)ch8.memory[i] << " ";  // print memory as hex
@@ -95,5 +88,4 @@ std::ostream& operator<<(std::ostream& stream, const Chip8& ch8){
         }
     }
     return stream;
-
 }

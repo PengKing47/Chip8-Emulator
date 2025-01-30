@@ -14,7 +14,6 @@ SDLScreen::~SDLScreen(){
     SDL_DestroyWindow(this->window);
 }
 
-
 void SDLScreen::writeToBuffer(uint32_t* pixels){
     uint32_t* inactiveBuffer = this->screenBuffer1;
     if(buffer1Active){
