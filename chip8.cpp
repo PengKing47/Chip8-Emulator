@@ -1,11 +1,11 @@
 #include "chip8.h"
-#include "sdlscreen.h"
+#include "opdecoder.h"
 
 Chip8::Chip8(){
-    SDLScreen screen;
-    screen.open();
     this->programCounter = START_ADDRESS;
     this->loadFonts();
+
+    
 }
 
 void Chip8::loadRom(const std::string& filename){
@@ -14,14 +14,17 @@ void Chip8::loadRom(const std::string& filename){
         std::cerr << "Could not open file " << filename << '\n';
         exit(1);
     }
-    int currentAdress = START_ADDRESS;
-    uint16_t opcode;
-    while(infile.read(reinterpret_cast<char*>(&opcode), sizeof(opcode))){
-        uint8_t msb = opcode >> 8;
-        uint8_t lsb = opcode & 0xFF;
-        this->memory[currentAdress] = msb;
-        this->memory[currentAdress+1] = lsb;
-        currentAdress += 2;
+
+    int currentAddress = START_ADDRESS;
+    char byte;  // Read 1 byte at a time
+
+    while (infile.get(byte)) {  // Read the first byte
+        this->memory[currentAddress] = static_cast<uint8_t>(byte);  
+
+        if (infile.get(byte)) {  // Read the second byte
+            this->memory[currentAddress+1] = static_cast<uint8_t>(byte);
+        }
+        currentAddress += 2;
     }
 
     infile.close();
@@ -54,6 +57,36 @@ void Chip8::loadFonts(){
     }
 }
 
+void Chip8::start(){
+    OpDecoder opDecoder(this);
+    SDLScreen screen;
+    std::thread screenThread([&screen]() { screen.open(); });
+    while(true){
+        opDecoder.fetch();
+        opDecoder.execute();
+        screen.writeToBuffer(this->pixels);
+        screen.draw();
+        this->updateTimers();
+        std::this_thread::sleep_for(std::chrono::milliseconds(16)); // roughly 60 hz
+    }
+
+    screenThread.join();
+
+}
+
+
+
+void Chip8::updateTimers(){
+    if(this->delayTimer > 0){
+        --this->delayTimer;
+    }
+    if(this->soundTimer > 0){
+        --this->soundTimer;
+    }
+}
+
+
+
 std::ostream& operator<<(std::ostream& stream, const Chip8& ch8){
     for (int i = 0; i < 4096; i++) {
         stream << "0x" << std::hex << (int)ch8.memory[i] << " ";  // print memory as hex
@@ -62,4 +95,5 @@ std::ostream& operator<<(std::ostream& stream, const Chip8& ch8){
         }
     }
     return stream;
+
 }

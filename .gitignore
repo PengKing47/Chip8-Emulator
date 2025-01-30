@@ -3,6 +3,8 @@ CMakeCache.txt
 CMakeFiles/*
 CMakeFiles
 .vscode/*
+.vscode
 roms/*
+roms
 chip8_emulator
 cmake_install.cmake

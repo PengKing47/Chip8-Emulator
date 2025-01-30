@@ -9,8 +9,6 @@ private:
 
 public:
     OpDecoder(Chip8* ch8);
-
-private:
     void fetch();
     void execute();
 
@@ -20,6 +18,7 @@ private:
     void setRegister();
     void add();
     void setIndexRegister();
+    void display();
 };
 
 #endif
