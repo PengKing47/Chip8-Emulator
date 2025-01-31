@@ -37,6 +37,15 @@ public:
     void subtractReversed();
     void shiftRight();
     void shiftLeft();
+    void getDelayTimer();
+    void setDelayTimer();
+    void setSoundTimer();
+    void addToIndex();
+    void getKey();
+    void binaryDecimalConversion();
+    void storeMemory();
+    void loadMemory();
+    void fontCharacter();
 };
 
 #endif

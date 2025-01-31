@@ -1,5 +1,6 @@
 #include "chip8.h"
 #include "opdecoder.h"
+#include "sdlscreen.h"
 
 Chip8::Chip8(){
     this->programCounter = START_ADDRESS;
@@ -57,18 +58,17 @@ void Chip8::loadFonts(){
 
 void Chip8::start(){
     OpDecoder opDecoder(this);
-    SDLScreen screen;
+    SDLScreen screen(this);
     std::thread screenThread([&screen]() { screen.open(); });
     while(true){
         opDecoder.fetch();
+        std::cout << "0x" << std::hex << (int)this->opcode << std::endl;
         opDecoder.execute();
         screen.writeToBuffer(this->pixels);
         screen.draw();
-        this->updateTimers();
-        std::this_thread::sleep_for(std::chrono::milliseconds(16)); // roughly 60 hz
+        this->updateTimers(); // add seperate thread for the timers
+        std::this_thread::sleep_for(std::chrono::milliseconds(200)); // 16 isroughly 60 hz
     }
-
-    screenThread.join();
 }
 
 void Chip8::updateTimers(){

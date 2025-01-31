@@ -46,6 +46,19 @@ void OpDecoder::execute(){
         case 0xB: jumpWithOffset(); return;
         case 0xC: getRandom(); return;
         case 0xD: display(); return;
+        case 0xF:
+            switch(lsb){
+                case 0x07: getDelayTimer(); return;
+                case 0x0A: getKey(); return;
+                case 0x15: setDelayTimer(); return;
+                case 0x18: setSoundTimer(); return;
+                case 0x1E: addToIndex(); return;
+                case 0x29: fontCharacter(); return;
+                case 0x33: binaryDecimalConversion(); return;
+                case 0x55: storeMemory(); return;
+                case 0x65: loadMemory(); return;
+            }
+        default: std::cerr << "Unknown opcode: " << std::hex << opcode << std::dec << std::endl; return;
     }
 }
 
@@ -262,4 +275,73 @@ void OpDecoder::shiftLeft(){
     this->ch8->registers[n2] = this->ch8->registers[n3];
     this->ch8->registers[15] = this->ch8->registers[n2] >> 7;
     this->ch8->registers[n2] <<= 1;
+}
+
+void OpDecoder::getDelayTimer(){
+    uint16_t opcode = this->ch8->opcode;
+    uint8_t n2 = (opcode >> 8) & 0xF;
+    this->ch8->registers[n2] = this->ch8->delayTimer;
+}
+
+void OpDecoder::setDelayTimer(){
+    uint16_t opcode = this->ch8->opcode;
+    uint8_t n2 = (opcode >> 8) & 0xF;
+    this->ch8->delayTimer = this->ch8->registers[n2];
+}
+
+void OpDecoder::setSoundTimer(){
+    uint16_t opcode = this->ch8->opcode;
+    uint8_t n2 = (opcode >> 8) & 0xF;
+    this->ch8->soundTimer = this->ch8->registers[n2];
+}
+
+void OpDecoder::addToIndex(){
+    uint16_t opcode = this->ch8->opcode;
+    uint8_t n2 = (opcode >> 8) & 0xF;
+    this->ch8->indexRegister += this->ch8->registers[n2];
+}
+
+void OpDecoder::getKey(){
+    uint16_t opcode = this->ch8->opcode;
+    uint8_t n2 = (opcode >> 8) & 0xF;
+    for(int i = 0; i <= 0xF; ++i){
+        if(this->ch8->inputKeys[i]){
+            this->ch8->registers[n2] = i;
+            return;
+        }
+    }
+    this->ch8->programCounter -= 2;
+}
+
+void OpDecoder::binaryDecimalConversion(){
+    uint16_t opcode = this->ch8->opcode;
+    uint8_t n2 = (opcode >> 8) & 0xF;
+    uint8_t val = this->ch8->registers[n2];
+    this->ch8->memory[this->ch8->indexRegister+2] = val%10;
+    val/=10;
+    this->ch8->memory[this->ch8->indexRegister+1] = val%10;
+    val/=10;
+    this->ch8->memory[this->ch8->indexRegister] = val%10;
+}
+
+void OpDecoder::storeMemory(){
+    uint16_t opcode = this->ch8->opcode;
+    uint8_t n2 = (opcode >> 8) & 0xF;
+    for(int i = 0; i <= n2; ++i){
+        this->ch8->memory[this->ch8->indexRegister+i] = this->ch8->registers[i];
+    }
+}
+
+void OpDecoder::loadMemory(){
+    uint16_t opcode = this->ch8->opcode;
+    uint8_t n2 = (opcode >> 8) & 0xF;
+    for(int i = 0; i <= n2; ++i){
+        this->ch8->registers[i] = this->ch8->memory[this->ch8->indexRegister+i];
+    }
+}
+
+void OpDecoder::fontCharacter(){
+    uint16_t opcode = this->ch8->opcode;
+    uint8_t n2 = (opcode >> 8) & 0xF;
+    this->ch8->indexRegister = FONT_START_ADDRESS + (this->ch8->registers[n2]*5);
 }

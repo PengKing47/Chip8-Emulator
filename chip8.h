@@ -3,7 +3,7 @@
 
 #define START_ADDRESS 0x200
 #define FONT_SIZE 80
-#define FONT_START_ADDRESS 0x050
+#define FONT_START_ADDRESS 0x50
 
 #include <cstdint>
 #include <string>
@@ -11,20 +11,19 @@
 #include <iostream>
 #include <thread>
 #include <chrono>
-#include "sdlscreen.h"
 
 class Chip8{
 private:
-    uint8_t registers[16];
-    uint8_t memory[4096];
+    uint8_t registers[16] ={0};
+    uint8_t memory[4096] = {0};
     uint16_t indexRegister;
     uint16_t programCounter;
-    uint16_t stack[16];
+    uint16_t stack[16] = {0};
     uint8_t stackPointer;
     uint8_t delayTimer;
     uint8_t soundTimer;
-    uint8_t inputKeys[16];
-    uint32_t pixels[64 * 32] = {0};
+    uint8_t inputKeys[16] = {0};
+    bool pixels[64 * 32] = {0};
     uint16_t opcode;
 
 public:
