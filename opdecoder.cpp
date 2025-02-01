@@ -1,7 +1,8 @@
 #include "opdecoder.h"
 
-OpDecoder::OpDecoder(Chip8* ch8){
+OpDecoder::OpDecoder(Chip8* ch8, uint8_t bitFlags){
     this->ch8 = ch8;
+    this->bitFlags = bitFlags;
 }
 
 void OpDecoder::fetch(){
@@ -15,7 +16,6 @@ void OpDecoder::execute(){
     uint8_t n1 = opcode >> 12;
     uint8_t n4 = opcode & 0xF;
     uint8_t lsb = opcode & 0xFF;
-
     switch(n1){
         case 0x0: 
             switch(opcode){
@@ -46,6 +46,11 @@ void OpDecoder::execute(){
         case 0xB: jumpWithOffset(); return;
         case 0xC: getRandom(); return;
         case 0xD: display(); return;
+        case 0xE: 
+            switch(lsb){
+                case 0x9E: skipIfPressed(); return;
+                case 0xA1: skipIfNotPressed(); return;
+            }
         case 0xF:
             switch(lsb){
                 case 0x07: getDelayTimer(); return;
@@ -58,7 +63,7 @@ void OpDecoder::execute(){
                 case 0x55: storeMemory(); return;
                 case 0x65: loadMemory(); return;
             }
-        default: std::cerr << "Unknown opcode: " << std::hex << opcode << std::dec << std::endl; return;
+        default: std::cerr << "Unknown opcode: 0x" << std::hex << opcode << std::dec << std::endl; return;
     }
 }
 
@@ -147,7 +152,7 @@ void OpDecoder::skipRegValE(){
     uint8_t n2 = (opcode >> 8) & 0xF;
     uint8_t val = opcode & 0xFF;
     if(this->ch8->registers[n2] == val){
-        ++this->ch8->programCounter;
+        this->ch8->programCounter += 2;
     }
 }
 
@@ -156,7 +161,7 @@ void OpDecoder::skipRegValNE(){
     uint8_t n2 = (opcode >> 8) & 0xF;
     uint8_t val = opcode & 0xFF;
     if(this->ch8->registers[n2] != val){
-        ++this->ch8->programCounter;
+        this->ch8->programCounter += 2;
     }
 }
 
@@ -165,7 +170,7 @@ void OpDecoder::skipRegRegE(){
     uint8_t n2 = (opcode >> 8) & 0xF;
     uint8_t n3 = (opcode >> 4) & 0xF;
     if(this->ch8->registers[n2] == this->ch8->registers[n3]){
-        ++this->ch8->programCounter;
+        this->ch8->programCounter += 2;
     }
 }
 
@@ -174,7 +179,7 @@ void OpDecoder::skipRegRegNE(){
     uint8_t n2 = (opcode >> 8) & 0xF;
     uint8_t n3 = (opcode >> 4) & 0xF;
     if(this->ch8->registers[n2] != this->ch8->registers[n3]){
-        ++this->ch8->programCounter;
+        this->ch8->programCounter += 2;
     }
 }
 
@@ -262,7 +267,9 @@ void OpDecoder::shiftRight(){
     uint16_t opcode = this->ch8->opcode;
     uint8_t n2 = (opcode >> 8) & 0xF;
     uint8_t n3 = (opcode >> 4) & 0xF;
-    this->ch8->registers[n2] = this->ch8->registers[n3];
+    if(this->bitFlags & 0x1){
+        this->ch8->registers[n2] = this->ch8->registers[n3];
+    }
     this->ch8->registers[15] = this->ch8->registers[n2] & 0x1;
     this->ch8->registers[n2] >>= 1;
 }
@@ -272,7 +279,9 @@ void OpDecoder::shiftLeft(){
     uint16_t opcode = this->ch8->opcode;
     uint8_t n2 = (opcode >> 8) & 0xF;
     uint8_t n3 = (opcode >> 4) & 0xF;
-    this->ch8->registers[n2] = this->ch8->registers[n3];
+    if(this->bitFlags & 0x1){
+        this->ch8->registers[n2] = this->ch8->registers[n3];
+    }
     this->ch8->registers[15] = this->ch8->registers[n2] >> 7;
     this->ch8->registers[n2] <<= 1;
 }
@@ -344,4 +353,20 @@ void OpDecoder::fontCharacter(){
     uint16_t opcode = this->ch8->opcode;
     uint8_t n2 = (opcode >> 8) & 0xF;
     this->ch8->indexRegister = FONT_START_ADDRESS + (this->ch8->registers[n2]*5);
+}
+
+void OpDecoder::skipIfPressed(){
+    uint16_t opcode = this->ch8->opcode;
+    uint8_t n2 = (opcode >> 8) & 0xF;
+    if(this->ch8->inputKeys[this->ch8->registers[n2]]){
+        this->ch8->programCounter += 2;
+    }
+}
+
+void OpDecoder::skipIfNotPressed(){
+    uint16_t opcode = this->ch8->opcode;
+    uint8_t n2 = (opcode >> 8) & 0xF;
+    if(!this->ch8->inputKeys[this->ch8->registers[n2]]){
+        this->ch8->programCounter += 2;
+    }
 }

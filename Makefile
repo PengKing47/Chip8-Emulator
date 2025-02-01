@@ -153,6 +153,30 @@ chip8.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/chip8_emulator.dir/build.make CMakeFiles/chip8_emulator.dir/chip8.cpp.s
 .PHONY : chip8.cpp.s
 
+eventhandler.o: eventhandler.cpp.o
+.PHONY : eventhandler.o
+
+# target to build an object file
+eventhandler.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/chip8_emulator.dir/build.make CMakeFiles/chip8_emulator.dir/eventhandler.cpp.o
+.PHONY : eventhandler.cpp.o
+
+eventhandler.i: eventhandler.cpp.i
+.PHONY : eventhandler.i
+
+# target to preprocess a source file
+eventhandler.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/chip8_emulator.dir/build.make CMakeFiles/chip8_emulator.dir/eventhandler.cpp.i
+.PHONY : eventhandler.cpp.i
+
+eventhandler.s: eventhandler.cpp.s
+.PHONY : eventhandler.s
+
+# target to generate assembly for a file
+eventhandler.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/chip8_emulator.dir/build.make CMakeFiles/chip8_emulator.dir/eventhandler.cpp.s
+.PHONY : eventhandler.cpp.s
+
 main.o: main.cpp.o
 .PHONY : main.o
 
@@ -237,6 +261,9 @@ help:
 	@echo "... chip8.o"
 	@echo "... chip8.i"
 	@echo "... chip8.s"
+	@echo "... eventhandler.o"
+	@echo "... eventhandler.i"
+	@echo "... eventhandler.s"
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"

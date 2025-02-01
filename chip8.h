@@ -30,12 +30,14 @@ public:
     Chip8();
     void loadRom(const std::string& filename);
     void loadFonts();
-    void start();
+    void start(uint8_t bitFlags);
     void updateTimers();
+    void clearInput();
     friend std::ostream& operator<<(std::ostream& stream, const Chip8& ch8);
 
     friend class OpDecoder;
     friend class SDLScreen;
+    friend class EventHandler;
 };
 
 #endif

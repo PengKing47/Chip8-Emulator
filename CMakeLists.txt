@@ -5,7 +5,8 @@ set(SourceFiles
     main.cpp
     chip8.cpp
     opdecoder.cpp
-    sdlscreen.cpp)
+    sdlscreen.cpp
+    eventhandler.cpp)
 
 find_package(SDL2 REQUIRED)
 include_directories(${SDL2_INCLUDE_DIRS})

@@ -1,6 +1,7 @@
 #include "chip8.h"
 #include "opdecoder.h"
 #include "sdlscreen.h"
+#include "eventhandler.h"
 
 Chip8::Chip8(){
     this->programCounter = START_ADDRESS;
@@ -56,18 +57,21 @@ void Chip8::loadFonts(){
     }
 }
 
-void Chip8::start(){
-    OpDecoder opDecoder(this);
+void Chip8::start(uint8_t bitFlags){
+    OpDecoder opDecoder(this, bitFlags);
     SDLScreen screen(this);
-    std::thread screenThread([&screen]() { screen.open(); });
+    SDL_Event event;
+    EventHandler eventHandler(this, &event);
     while(true){
+        eventHandler.handleEvents();
         opDecoder.fetch();
         std::cout << "0x" << std::hex << (int)this->opcode << std::endl;
         opDecoder.execute();
         screen.writeToBuffer(this->pixels);
         screen.draw();
-        this->updateTimers(); // add seperate thread for the timers
-        std::this_thread::sleep_for(std::chrono::milliseconds(200)); // 16 isroughly 60 hz
+        this->updateTimers();
+        this->clearInput();
+        std::this_thread::sleep_for(std::chrono::milliseconds(1)); // 16 is roughly 60 hz
     }
 }
 
@@ -88,4 +92,12 @@ std::ostream& operator<<(std::ostream& stream, const Chip8& ch8){
         }
     }
     return stream;
+}
+
+void Chip8::clearInput(){
+    for(int i = 0; i <= 0xF; ++i){
+        if(this->inputKeys[i] > 0){
+            --this->inputKeys[i];
+        }
+    }
 }

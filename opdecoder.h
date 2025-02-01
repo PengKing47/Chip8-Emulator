@@ -7,9 +7,10 @@
 class OpDecoder{
 private:
     Chip8* ch8;
+    uint8_t bitFlags;
 
 public:
-    OpDecoder(Chip8* ch8);
+    OpDecoder(Chip8* ch8, uint8_t bitFlags);
     void fetch();
     void execute();
 
@@ -46,6 +47,8 @@ public:
     void storeMemory();
     void loadMemory();
     void fontCharacter();
+    void skipIfPressed();
+    void skipIfNotPressed();
 };
 
 #endif
