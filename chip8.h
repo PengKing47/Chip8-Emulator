@@ -14,7 +14,7 @@
 
 class Chip8{
 private:
-    uint8_t registers[16] ={0};
+    uint8_t registers[16] = {0};
     uint8_t memory[4096] = {0};
     uint16_t indexRegister;
     uint16_t programCounter;
