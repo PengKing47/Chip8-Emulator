@@ -3,6 +3,11 @@
 EventHandler::EventHandler(Chip8* ch8, SDL_Event* event){
     this->ch8 = ch8;
     this->event = event;
+
+    //sounds
+    Mix_Init(0);
+    Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 1024);
+    this->sound = Mix_LoadWAV("beep-02.wav");
 }
 
 void EventHandler::handleQuitEvent(){
@@ -35,9 +40,16 @@ void EventHandler::handleKeyEvent(){
     }
 }
 
+void EventHandler::handleSoundEvent(){
+    if(this->ch8->soundTimer >= 0){
+        Mix_PlayChannel(-1, this->sound, 0);
+    }
+}
+
 void EventHandler::handleEvents(){
     while(SDL_PollEvent(&(*this->event))){
         this->handleQuitEvent();
         this->handleKeyEvent();
+        this->handleSoundEvent();
     }
 }
